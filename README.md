@@ -1,4 +1,4 @@
-# Tukumana Proxy
+# AI Proxy
 
 OpenCodeからさくらのAIへのリクエストを中継・モニタリングするプロキシサーバー
 

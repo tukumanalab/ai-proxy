@@ -1,5 +1,5 @@
 {
-  "name": "tukumana-proxy",
+  "name": "ai-proxy",
   "version": "1.0.0",
   "description": "Proxy server for monitoring OpenCode requests to Sakura AI",
   "main": "dist/index.js",

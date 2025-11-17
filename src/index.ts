@@ -204,7 +204,7 @@ app.use('/proxy', ngWordChecker.middleware(), proxyMiddleware);
 // Start server
 app.listen(PORT, () => {
   console.log(colors.rainbow('\n' + '='.repeat(60)));
-  console.log(colors.green.bold(`  🚀 Tukumana Proxy Server Started`));
+  console.log(colors.green.bold(`  🚀 AI Proxy Server Started`));
   console.log(colors.rainbow('='.repeat(60)));
   console.log(colors.white(`  📊 Dashboard: http://localhost:${PORT}`));
   console.log(colors.white(`  📍 Proxy:     http://localhost:${PORT}/proxy`));
