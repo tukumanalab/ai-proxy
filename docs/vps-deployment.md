@@ -36,7 +36,7 @@
 
 ```bash
 sudo mkdir -p /srv/ai-proxy
-sudo chown $USER:$USER /srv/ai-proxy
+sudo chown $USER:www-data /srv/ai-proxy
 ```
 
 ---
@@ -48,14 +48,6 @@ sudo chown $USER:$USER /srv/ai-proxy
 ```bash
 cd /srv/ai-proxy
 git clone https://github.com/tukumanalab/ai-proxy.git .
-```
-
-または、ローカルからファイルを転送する場合：
-
-```bash
-# ローカル環境から実行
-rsync -avz --exclude 'node_modules' --exclude 'dist' --exclude '.git' \
-  /path/to/local/ai-proxy/ user@your-server:/srv/ai-proxy/
 ```
 
 ### 2. 依存関係のインストール
