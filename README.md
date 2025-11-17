@@ -34,7 +34,7 @@ cp .env.example .env
 `.env`ファイルを編集：
 
 ```
-PORT=3000
+PORT=4000
 SAKURA_AI_API=https://api.sakura.ai/v1
 ```
 
@@ -63,7 +63,7 @@ npm start
 OpenCodeの設定で、APIエンドポイントをこのプロキシサーバーのURLに変更します：
 
 ```
-http://localhost:3000/proxy
+http://localhost:4000/proxy
 ```
 
 ## デプロイメント
@@ -79,7 +79,7 @@ nginx環境でのセットアップ、PM2によるプロセス管理、リバー
 プロキシサーバーを起動後、ブラウザで以下のURLにアクセス：
 
 ```
-http://localhost:3000
+http://localhost:4000
 ```
 
 ### ダッシュボード機能
@@ -123,7 +123,7 @@ http://localhost:3000
 プロキシサーバーが正常に動作しているか確認：
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:4000/health
 ```
 
 ## データベース
@@ -180,7 +180,7 @@ npm run dev
 `.env`ファイルで別のポート番号を指定してください：
 
 ```
-PORT=3001
+PORT=4001
 ```
 
 ### さくらのAI APIへの接続エラー

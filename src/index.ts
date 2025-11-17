@@ -11,7 +11,7 @@ import { db } from './database';
 import { ngWordChecker } from './ngWordChecker';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const SAKURA_AI_API = process.env.SAKURA_AI_API || 'https://api.sakura.ai';
 
 // Set up view engine
