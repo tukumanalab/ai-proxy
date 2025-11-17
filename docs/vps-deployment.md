@@ -64,7 +64,7 @@ npm install
 cp .env.example .env
 
 # .envファイルを編集
-nano .env
+vi .env
 ```
 
 `.env`ファイルの設定例：
@@ -93,7 +93,6 @@ npm run build
 
 ```bash
 # UFWを使用している場合
-sudo ufw allow 4000/tcp
 sudo ufw allow 'Nginx Full'
 sudo ufw status
 ```
@@ -133,16 +132,33 @@ pm2 delete ai-proxy
 
 ### 3. 自動起動の設定
 
+サーバー再起動時にAI Proxyが自動的に起動するように設定します。
+
 ```bash
-# PM2をシステム起動時に自動起動
+# ステップ1: PM2の自動起動設定コマンドを生成
 pm2 startup systemd
+```
 
-# 上記コマンドの出力に従ってコマンドを実行（例）
-# sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u $USER --hp /home/$USER
+上記コマンドを実行すると、以下のような **sudoコマンドが表示** されます：
 
-# 現在のプロセスを保存
+```
+[PM2] You have to run this command as root. Execute the following command:
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u username --hp /home/username
+```
+
+**表示されたsudoコマンドをコピーして実行してください：**
+
+```bash
+# ステップ2: 表示されたコマンドを実行（コマンドは環境によって異なります）
+sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u $USER --hp /home/$USER
+```
+
+```bash
+# ステップ3: 現在のプロセスリストを保存
 pm2 save
 ```
+
+これで、サーバー再起動後も自動的にAI Proxyが起動します。
 
 ### 4. アプリケーションの更新手順
 
@@ -166,57 +182,72 @@ pm2 restart ai-proxy
 
 ## nginxのリバースプロキシ設定
 
-### 1. nginxの設定ファイルを作成
+`include` ディレクティブを使って、既存のnginx設定に `location` ブロックを追加します。
+
+### 1. location専用の設定ファイルを作成
 
 ```bash
-sudo nano /etc/nginx/sites-available/ai-proxy
+sudo vi /etc/nginx/conf.d/ai-proxy-location.conf
 ```
 
-以下の内容を記述：
+以下の内容を記述（`location` ブロックのみ）：
+
+```nginx
+location /ai-proxy/ {
+    # AIリクエスト用に大きなボディサイズを許可
+    client_max_body_size 10M;
+
+    # パスをリライト（/ai-proxy/xxx を /xxx に変換）
+    rewrite ^/ai-proxy/(.*)$ /$1 break;
+
+    proxy_pass http://localhost:4000;
+    proxy_http_version 1.1;
+
+    # WebSocketサポート
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+
+    # プロキシヘッダー
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # タイムアウト設定
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+
+    # キャッシュ無効化
+    proxy_cache_bypass $http_upgrade;
+}
+```
+
+### 2. 既存の設定ファイルに include を追加
+
+既存のnginx設定ファイル（例: `/etc/nginx/sites-available/default`）を編集：
+
+```bash
+sudo vi /etc/nginx/sites-available/default
+```
+
+`server` ブロック内に以下を追加：
 
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;  # ドメイン名に変更
+    server_name your-domain.com;
 
-    # ログ設定
-    access_log /var/log/nginx/ai-proxy-access.log;
-    error_log /var/log/nginx/ai-proxy-error.log;
+    # 既存の設定...
 
-    # クライアントボディサイズの上限を設定（大きなリクエストに対応）
-    client_max_body_size 10M;
-
-    location / {
-        proxy_pass http://localhost:4000;
-        proxy_http_version 1.1;
-
-        # WebSocketサポート
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-
-        # プロキシヘッダー
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # タイムアウト設定
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
-
-        # キャッシュ無効化
-        proxy_cache_bypass $http_upgrade;
-    }
+    # AI Proxyの設定を読み込み
+    include /etc/nginx/conf.d/ai-proxy-location.conf;
 }
 ```
 
-### 2. 設定ファイルを有効化
+### 3. 設定のテストと反映
 
 ```bash
-# シンボリックリンクを作成
-sudo ln -s /etc/nginx/sites-available/ai-proxy /etc/nginx/sites-enabled/
-
 # nginx設定のテスト
 sudo nginx -t
 
@@ -224,12 +255,17 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-### 3. 設定の確認
+### 4. 設定の確認
 
 ```bash
 # nginxのステータス確認
 sudo systemctl status nginx
 
 # ブラウザまたはcurlでアクセス確認
-curl http://your-domain.com/health
+curl http://your-domain.com/ai-proxy/health
 ```
+
+**アクセスURL:**
+- ダッシュボード: `http://your-domain.com/ai-proxy/`
+- プロキシエンドポイント: `http://your-domain.com/ai-proxy/proxy`
+- ヘルスチェック: `http://your-domain.com/ai-proxy/health`
