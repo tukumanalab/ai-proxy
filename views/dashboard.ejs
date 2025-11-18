@@ -356,6 +356,11 @@
                                 .join(' ');
                             }
                             if (contentText) {
+                              // Extract content from <task></task> tags if present
+                              const taskMatch = contentText.match(/<task>([\s\S]*?)<\/task>/);
+                              if (taskMatch) {
+                                contentText = taskMatch[1].trim();
+                              }
                               preview = contentText.substring(0, 150);
                               if (contentText.length > 150) preview += '...';
                               isUserMessage = true;
