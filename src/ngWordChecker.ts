@@ -1,11 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import { db } from './database';
 
+interface LLMCheckResult {
+  blocked: boolean;
+  matched_word: string | null;
+  reason: string;
+}
+
 export class NGWordChecker {
   private ngWords: string[] = [];
+  private geminiApiKey: string | null = null;
 
   constructor() {
     this.loadNGWords();
+    this.geminiApiKey = process.env.GEMINI_API_KEY || null;
   }
 
   private loadNGWords() {
@@ -27,8 +35,83 @@ export class NGWordChecker {
     return null;
   }
 
+  private async checkWithLLM(content: string): Promise<LLMCheckResult> {
+    if (!this.geminiApiKey || this.ngWords.length === 0) {
+      return { blocked: false, matched_word: null, reason: '' };
+    }
+
+    const prompt = `あなたはコンテンツモデレーターです。以下のNGワードリストに関連する内容がユーザーメッセージに含まれているか判定してください。
+
+判定基準:
+- 完全一致だけでなく、略語、言い換え、隠語、当て字、ネットスラングも検出対象です
+- 例: 「青山学院」→「青学」「青山」、「死」→「タヒ」「氏」「4」など
+- NGワードの概念や話題に触れている場合もブロック対象です
+
+NGワードリスト: ${this.ngWords.join(', ')}
+
+ユーザーメッセージ: ${content}
+
+以下のJSON形式のみで回答してください（説明文は不要）:
+{"blocked": true または false, "matched_word": "検出されたNGワード（なければnull）", "reason": "判定理由（日本語で簡潔に）"}`;
+
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${this.geminiApiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 256,
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        console.error(`Gemini API error: ${response.status} ${response.statusText}`);
+        return { blocked: false, matched_word: null, reason: 'API error' };
+      }
+
+      const data = await response.json() as {
+        candidates?: Array<{
+          content?: {
+            parts?: Array<{
+              text?: string;
+            }>;
+          };
+        }>;
+      };
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      // Parse JSON from response
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const result = JSON.parse(jsonMatch[0]) as LLMCheckResult;
+        return result;
+      }
+
+      return { blocked: false, matched_word: null, reason: 'Parse error' };
+    } catch (error) {
+      console.error('LLM check error:', error);
+      return { blocked: false, matched_word: null, reason: 'Error' };
+    }
+  }
+
   public middleware() {
-    return (req: Request, res: Response, next: NextFunction) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
       const timestamp = new Date().toISOString();
       let requestContent = '';
 
@@ -73,13 +156,29 @@ export class NGWordChecker {
             return next();
           }
 
-          // Check for NG words only if we have content
-          const foundNGWord = this.checkContent(requestContent);
+          // First check: keyword matching (fast)
+          let foundNGWord = this.checkContent(requestContent);
+          let blockedByLLM = false;
+          let llmReason = '';
+
+          // Second check: LLM-based detection (if keyword match didn't find anything)
+          if (!foundNGWord && this.geminiApiKey) {
+            const llmResult = await this.checkWithLLM(requestContent);
+            if (llmResult.blocked) {
+              foundNGWord = llmResult.matched_word;
+              blockedByLLM = true;
+              llmReason = llmResult.reason;
+              console.log(`\n🤖 LLM detected NG content: "${foundNGWord}" - ${llmReason}`);
+            }
+          }
 
           if (foundNGWord) {
-            console.log(`\n🚫 NG WORD BLOCKED: "${foundNGWord}"`);
+            console.log(`\n🚫 NG WORD BLOCKED: "${foundNGWord}"${blockedByLLM ? ' (LLM)' : ''}`);
             console.log(`   Path: ${req.path}`);
             console.log(`   Content: ${requestContent.substring(0, 100)}...`);
+            if (llmReason) {
+              console.log(`   Reason: ${llmReason}`);
+            }
           }
 
           if (foundNGWord) {
@@ -94,7 +193,8 @@ export class NGWordChecker {
             });
 
             // Create a friendly response message
-            const friendlyMessage = `申し訳ございません。このリクエストには不適切な表現（「${foundNGWord}」）が含まれているため、処理できませんでした。\n\n別の表現で質問していただけますか？`;
+            const detectionMethod = blockedByLLM ? `（LLM検出: ${llmReason}）` : '';
+            const friendlyMessage = `申し訳ございません。このリクエストには不適切な表現（「${foundNGWord}」）が含まれているため、処理できませんでした。${detectionMethod}\n\n別の表現で質問していただけますか？`;
 
             // Check if streaming is requested
             const isStreaming = req.body.stream === true;
@@ -152,7 +252,7 @@ export class NGWordChecker {
                 responseHeaders: JSON.stringify({ 'content-type': 'text/event-stream' }),
                 responseBody: friendlyMessage,
                 duration: 0,
-                error: `Blocked by NG word: ${foundNGWord}`
+                error: `Blocked by NG word: ${foundNGWord}${blockedByLLM ? ' (LLM)' : ''}`
               });
 
               return res.end();
@@ -185,7 +285,7 @@ export class NGWordChecker {
                 responseHeaders: JSON.stringify({ 'content-type': 'application/json' }),
                 responseBody: JSON.stringify(blockedResponse),
                 duration: 0,
-                error: `Blocked by NG word: ${foundNGWord}`
+                error: `Blocked by NG word: ${foundNGWord}${blockedByLLM ? ' (LLM)' : ''}`
               });
 
               return res.status(200).json(blockedResponse);
@@ -207,6 +307,10 @@ export class NGWordChecker {
 
   public reloadNGWords() {
     this.loadNGWords();
+  }
+
+  public hasLLMSupport(): boolean {
+    return !!this.geminiApiKey;
   }
 }
 

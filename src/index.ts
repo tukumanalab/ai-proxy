@@ -293,6 +293,11 @@ app.listen(PORT, () => {
   if (ngWords.length > 0) {
     console.log(colors.white(`  🚫 NG Words:  ${ngWords.length} word(s) configured`));
     console.log(colors.gray(`     Words: ${ngWords.join(', ')}`));
+    if (ngWordChecker.hasLLMSupport()) {
+      console.log(colors.green(`  🤖 LLM Check: Enabled (Gemini API)`));
+    } else {
+      console.log(colors.gray(`  🤖 LLM Check: Disabled (no GEMINI_API_KEY)`));
+    }
   } else {
     console.log(colors.gray(`  🚫 NG Words:  None configured`));
   }
