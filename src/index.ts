@@ -198,6 +198,85 @@ app.get('/api/requests', (req: Request, res: Response) => {
   });
 });
 
+// Settings page routes
+app.get('/settings', (req: Request, res: Response) => {
+  const ngWords = db.getAllNGWords();
+  const message = req.query.message as string || '';
+  const messageType = req.query.type as string || 'success';
+
+  res.render('settings', {
+    ngWords,
+    message,
+    messageType
+  });
+});
+
+// Add NG word
+app.post('/settings/ng-words', express.urlencoded({ extended: true }), (req: Request, res: Response) => {
+  const word = req.body.word?.trim();
+
+  if (!word) {
+    res.redirect('/settings?message=NG word cannot be empty&type=error');
+    return;
+  }
+
+  try {
+    db.addNGWord(word);
+    ngWordChecker.reloadNGWords();
+    res.redirect('/settings?message=NG word added successfully&type=success');
+  } catch (error: any) {
+    if (error.message?.includes('UNIQUE constraint failed')) {
+      res.redirect('/settings?message=This NG word already exists&type=error');
+    } else {
+      res.redirect('/settings?message=Failed to add NG word&type=error');
+    }
+  }
+});
+
+// Update NG word
+app.post('/settings/ng-words/:id', express.urlencoded({ extended: true }), (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const word = req.body.word?.trim();
+
+  if (!word) {
+    res.redirect('/settings?message=NG word cannot be empty&type=error');
+    return;
+  }
+
+  try {
+    const success = db.updateNGWord(id, word);
+    if (success) {
+      ngWordChecker.reloadNGWords();
+      res.redirect('/settings?message=NG word updated successfully&type=success');
+    } else {
+      res.redirect('/settings?message=NG word not found&type=error');
+    }
+  } catch (error: any) {
+    if (error.message?.includes('UNIQUE constraint failed')) {
+      res.redirect('/settings?message=This NG word already exists&type=error');
+    } else {
+      res.redirect('/settings?message=Failed to update NG word&type=error');
+    }
+  }
+});
+
+// Delete NG word
+app.post('/settings/ng-words/:id/delete', (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const success = db.deleteNGWord(id);
+    if (success) {
+      ngWordChecker.reloadNGWords();
+      res.redirect('/settings?message=NG word deleted successfully&type=success');
+    } else {
+      res.redirect('/settings?message=NG word not found&type=error');
+    }
+  } catch (error) {
+    res.redirect('/settings?message=Failed to delete NG word&type=error');
+  }
+});
+
 // Apply NG word checker and proxy middleware to /proxy path
 app.use('/proxy', ngWordChecker.middleware(), proxyMiddleware);
 

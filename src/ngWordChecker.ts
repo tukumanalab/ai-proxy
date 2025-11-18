@@ -9,11 +9,9 @@ export class NGWordChecker {
   }
 
   private loadNGWords() {
-    const ngWordsEnv = process.env.NG_WORDS || '';
-    this.ngWords = ngWordsEnv
-      .split(',')
-      .map(word => word.trim())
-      .filter(word => word.length > 0);
+    // Load NG words from database
+    const ngWordsFromDb = db.getAllNGWords();
+    this.ngWords = ngWordsFromDb.map(item => item.word);
   }
 
   public checkContent(content: string): string | null {

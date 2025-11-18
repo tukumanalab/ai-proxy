@@ -16,6 +16,12 @@ export interface RequestLog {
   error?: string;
 }
 
+export interface NGWord {
+  id?: number;
+  word: string;
+  created_at?: string;
+}
+
 class DatabaseService {
   private db: Database.Database;
 
@@ -50,6 +56,38 @@ class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_method ON request_logs(method);
       CREATE INDEX IF NOT EXISTS idx_path ON request_logs(path);
     `);
+
+    // Create ng_words table
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS ng_words (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        word TEXT NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Migrate NG words from environment variable if table is empty
+    this.migrateNGWordsFromEnv();
+  }
+
+  private migrateNGWordsFromEnv() {
+    const count = this.db.prepare('SELECT COUNT(*) as count FROM ng_words').get() as { count: number };
+
+    if (count.count === 0) {
+      const ngWordsEnv = process.env.NG_WORDS || '';
+      const words = ngWordsEnv
+        .split(',')
+        .map(word => word.trim())
+        .filter(word => word.length > 0);
+
+      if (words.length > 0) {
+        const stmt = this.db.prepare('INSERT OR IGNORE INTO ng_words (word) VALUES (?)');
+        for (const word of words) {
+          stmt.run(word);
+        }
+        console.log(`Migrated ${words.length} NG words from environment variable to database`);
+      }
+    }
   }
 
   insertRequest(log: RequestLog): number {
@@ -129,6 +167,35 @@ class DatabaseService {
     `);
     const result = stmt.run(daysOld);
     return result.changes;
+  }
+
+  // NG Words CRUD methods
+  getAllNGWords(): NGWord[] {
+    const stmt = this.db.prepare('SELECT * FROM ng_words ORDER BY id ASC');
+    return stmt.all() as NGWord[];
+  }
+
+  getNGWordById(id: number): NGWord | undefined {
+    const stmt = this.db.prepare('SELECT * FROM ng_words WHERE id = ?');
+    return stmt.get(id) as NGWord | undefined;
+  }
+
+  addNGWord(word: string): number {
+    const stmt = this.db.prepare('INSERT INTO ng_words (word) VALUES (?)');
+    const result = stmt.run(word.trim());
+    return result.lastInsertRowid as number;
+  }
+
+  updateNGWord(id: number, word: string): boolean {
+    const stmt = this.db.prepare('UPDATE ng_words SET word = ? WHERE id = ?');
+    const result = stmt.run(word.trim(), id);
+    return result.changes > 0;
+  }
+
+  deleteNGWord(id: number): boolean {
+    const stmt = this.db.prepare('DELETE FROM ng_words WHERE id = ?');
+    const result = stmt.run(id);
+    return result.changes > 0;
   }
 
   close() {
