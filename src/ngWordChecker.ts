@@ -40,6 +40,10 @@ export class NGWordChecker {
       return { blocked: false, matched_word: null, reason: '' };
     }
 
+    const timestamp = new Date().toISOString();
+    const startTime = Date.now();
+    const ngWordsChecked = this.ngWords.join(', ');
+
     const prompt = `あなたはコンテンツモデレーターです。以下のNGワードリストに関連する内容がユーザーメッセージに含まれているか判定してください。
 
 判定基準:
@@ -47,7 +51,7 @@ export class NGWordChecker {
 - 例: 「青山学院」→「青学」「青山」、「死」→「タヒ」「氏」「4」など
 - NGワードの概念や話題に触れている場合もブロック対象です
 
-NGワードリスト: ${this.ngWords.join(', ')}
+NGワードリスト: ${ngWordsChecked}
 
 ユーザーメッセージ: ${content}
 
@@ -80,8 +84,19 @@ NGワードリスト: ${this.ngWords.join(', ')}
         }
       );
 
+      const duration = Date.now() - startTime;
+
       if (!response.ok) {
         console.error(`Gemini API error: ${response.status} ${response.statusText}`);
+        // Save failed request to database
+        db.insertLLMRequest({
+          timestamp,
+          request_content: content.substring(0, 500),
+          ng_words_checked: ngWordsChecked,
+          blocked: false,
+          reason: `API error: ${response.status}`,
+          duration
+        });
         return { blocked: false, matched_word: null, reason: 'API error' };
       }
 
@@ -100,12 +115,46 @@ NGワードリスト: ${this.ngWords.join(', ')}
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0]) as LLMCheckResult;
+
+        // Save request to database
+        db.insertLLMRequest({
+          timestamp,
+          request_content: content.substring(0, 500),
+          ng_words_checked: ngWordsChecked,
+          blocked: result.blocked,
+          matched_word: result.matched_word || undefined,
+          reason: result.reason,
+          duration
+        });
+
         return result;
       }
 
+      // Save parse error to database
+      db.insertLLMRequest({
+        timestamp,
+        request_content: content.substring(0, 500),
+        ng_words_checked: ngWordsChecked,
+        blocked: false,
+        reason: 'Parse error',
+        duration
+      });
+
       return { blocked: false, matched_word: null, reason: 'Parse error' };
     } catch (error) {
+      const duration = Date.now() - startTime;
       console.error('LLM check error:', error);
+
+      // Save error to database
+      db.insertLLMRequest({
+        timestamp,
+        request_content: content.substring(0, 500),
+        ng_words_checked: ngWordsChecked,
+        blocked: false,
+        reason: `Error: ${error}`,
+        duration
+      });
+
       return { blocked: false, matched_word: null, reason: 'Error' };
     }
   }

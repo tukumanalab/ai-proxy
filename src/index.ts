@@ -157,12 +157,14 @@ app.get('/', (req: Request, res: Response) => {
   const requests = db.getAllRequests(limit, offset);
   const totalCount = db.getTotalCount();
   const totalPages = Math.ceil(totalCount / limit);
+  const llmRequestCount = db.getLLMRequestCount();
 
   res.render('dashboard', {
     requests,
     currentPage: page,
     totalPages,
-    totalCount
+    totalCount,
+    llmRequestCount
   });
 });
 

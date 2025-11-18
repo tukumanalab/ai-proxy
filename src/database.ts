@@ -22,6 +22,18 @@ export interface NGWord {
   created_at?: string;
 }
 
+export interface LLMRequest {
+  id?: number;
+  timestamp: string;
+  request_content: string;
+  ng_words_checked: string;
+  blocked: boolean;
+  matched_word?: string;
+  reason?: string;
+  duration?: number;
+  created_at?: string;
+}
+
 class DatabaseService {
   private db: Database.Database;
 
@@ -62,6 +74,21 @@ class DatabaseService {
       CREATE TABLE IF NOT EXISTS ng_words (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         word TEXT NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create llm_requests table
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS llm_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT NOT NULL,
+        request_content TEXT,
+        ng_words_checked TEXT,
+        blocked INTEGER NOT NULL,
+        matched_word TEXT,
+        reason TEXT,
+        duration INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -196,6 +223,37 @@ class DatabaseService {
     const stmt = this.db.prepare('DELETE FROM ng_words WHERE id = ?');
     const result = stmt.run(id);
     return result.changes > 0;
+  }
+
+  // LLM Request methods
+  insertLLMRequest(request: LLMRequest): number {
+    const stmt = this.db.prepare(`
+      INSERT INTO llm_requests (
+        timestamp, request_content, ng_words_checked, blocked,
+        matched_word, reason, duration
+      ) VALUES (
+        @timestamp, @request_content, @ng_words_checked, @blocked,
+        @matched_word, @reason, @duration
+      )
+    `);
+
+    const result = stmt.run({
+      timestamp: request.timestamp,
+      request_content: request.request_content,
+      ng_words_checked: request.ng_words_checked,
+      blocked: request.blocked ? 1 : 0,
+      matched_word: request.matched_word || null,
+      reason: request.reason || null,
+      duration: request.duration || null
+    });
+
+    return result.lastInsertRowid as number;
+  }
+
+  getLLMRequestCount(): number {
+    const stmt = this.db.prepare('SELECT COUNT(*) as count FROM llm_requests');
+    const result = stmt.get() as { count: number };
+    return result.count;
   }
 
   close() {
