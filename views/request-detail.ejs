@@ -13,8 +13,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: #f5f5f5;
+      color: #333;
       padding: 20px;
     }
 
@@ -24,206 +24,171 @@
     }
 
     header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      padding: 30px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      background: #fff;
+      padding: 20px 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #e0e0e0;
     }
 
     .back-btn {
       display: inline-block;
-      padding: 10px 20px;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
+      padding: 8px 16px;
+      background: #f5f5f5;
+      color: #333;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 4px;
       margin-bottom: 15px;
-      backdrop-filter: blur(10px);
-      transition: background 0.3s;
+      border: 1px solid #ddd;
+      font-size: 0.9em;
     }
 
     .back-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: #eee;
     }
 
     h1 {
-      font-size: 2em;
-      margin-bottom: 10px;
+      font-size: 1.5em;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
     }
 
     .meta {
       display: flex;
-      gap: 20px;
+      gap: 30px;
       flex-wrap: wrap;
-      margin-top: 15px;
     }
 
     .meta-item {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 10px 20px;
-      border-radius: 8px;
-      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
     }
 
     .meta-label {
-      font-size: 0.85em;
-      opacity: 0.9;
+      font-size: 0.9em;
+      color: #666;
     }
 
     .meta-value {
-      font-size: 1.2em;
-      font-weight: bold;
-      margin-top: 5px;
+      font-size: 1em;
+      font-weight: 500;
+      color: #333;
     }
 
     .section {
-      background: #1e293b;
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
     }
 
     .section-title {
-      font-size: 1.5em;
+      font-size: 1.1em;
+      font-weight: 600;
       margin-bottom: 15px;
-      color: #a78bfa;
+      color: #333;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
     }
 
     .code-block {
-      background: #0f172a;
-      border: 2px solid #334155;
-      border-radius: 8px;
-      padding: 20px;
+      background: #fafafa;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 15px;
       overflow-x: auto;
       font-family: 'Monaco', 'Courier New', monospace;
-      font-size: 0.9em;
+      font-size: 0.85em;
       line-height: 1.6;
-    }
-
-    .json-viewer {
-      color: #e2e8f0;
-    }
-
-    .json-key {
-      color: #a78bfa;
-    }
-
-    .json-string {
-      color: #10b981;
-    }
-
-    .json-number {
-      color: #f59e0b;
-    }
-
-    .json-boolean {
-      color: #3b82f6;
-    }
-
-    .json-null {
-      color: #ef4444;
+      color: #333;
     }
 
     .method {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.85em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 0.8em;
     }
 
-    .method-GET { background: #10b981; color: white; }
-    .method-POST { background: #3b82f6; color: white; }
-    .method-PUT { background: #f59e0b; color: white; }
-    .method-DELETE { background: #ef4444; color: white; }
-    .method-PATCH { background: #8b5cf6; color: white; }
+    .method-GET { background: #e8f5e9; color: #2e7d32; }
+    .method-POST { background: #e3f2fd; color: #1565c0; }
+    .method-PUT { background: #fff3e0; color: #ef6c00; }
+    .method-DELETE { background: #ffebee; color: #c62828; }
+    .method-PATCH { background: #f3e5f5; color: #7b1fa2; }
 
     .status {
       display: inline-block;
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.85em;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 0.8em;
     }
 
-    .status-2xx { background: #10b981; color: white; }
-    .status-3xx { background: #3b82f6; color: white; }
-    .status-4xx { background: #f59e0b; color: white; }
-    .status-5xx { background: #ef4444; color: white; }
+    .status-2xx { background: #e8f5e9; color: #2e7d32; }
+    .status-3xx { background: #e3f2fd; color: #1565c0; }
+    .status-4xx { background: #fff3e0; color: #ef6c00; }
+    .status-5xx { background: #ffebee; color: #c62828; }
 
     .error-box {
-      background: #7f1d1d;
-      border: 2px solid #ef4444;
-      border-radius: 8px;
-      padding: 20px;
-      color: #fca5a5;
+      background: #fff5f5;
+      border: 1px solid #ffcdd2;
+      border-radius: 4px;
+      padding: 15px;
+      color: #c62828;
       margin-top: 10px;
     }
 
     .copy-btn {
-      float: right;
-      padding: 8px 16px;
-      background: #334155;
-      color: #e2e8f0;
-      border: none;
-      border-radius: 6px;
+      padding: 6px 12px;
+      background: #f5f5f5;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 4px;
       cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
+      font-size: 0.85em;
     }
 
     .copy-btn:hover {
-      background: #475569;
+      background: #eee;
     }
 
     .path {
       font-family: 'Monaco', 'Courier New', monospace;
-      color: #a78bfa;
+      color: #555;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
     }
 
     table th {
       text-align: left;
       padding: 10px;
-      background: #334155;
-      border-bottom: 2px solid #475569;
+      background: #fafafa;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
+      color: #666;
     }
 
     table td {
       padding: 10px;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid #f0f0f0;
       word-break: break-all;
     }
 
-    table tr:hover {
-      background: #2d3748;
+    .duration {
+      color: #2e7d32;
+      font-weight: 500;
     }
 
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 15px;
-    }
-
-    .logo {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-    }
-
-    .title-wrapper {
-      flex: 1;
+    .timestamp {
+      color: #888;
     }
   </style>
 </head>
@@ -231,45 +196,40 @@
   <div class="container">
     <header>
       <a href="/" class="back-btn">← Back to Dashboard</a>
-      <div class="logo-container">
-        <img src="/logo.png" alt="AI Proxy Logo" class="logo">
-        <div class="title-wrapper">
-          <h1>Request #<%= request.id %></h1>
-        </div>
-      </div>
+      <h1>Request #<%= request.id %></h1>
       <div class="meta">
         <div class="meta-item">
-          <div class="meta-label">Method</div>
-          <div class="meta-value"><span class="method method-<%= request.method %>"><%= request.method %></span></div>
+          <span class="meta-label">Method:</span>
+          <span class="meta-value"><span class="method method-<%= request.method %>"><%= request.method %></span></span>
         </div>
         <div class="meta-item">
-          <div class="meta-label">Status</div>
-          <div class="meta-value">
+          <span class="meta-label">Status:</span>
+          <span class="meta-value">
             <% if (request.statusCode) { %>
               <span class="status status-<%= Math.floor(request.statusCode / 100) %>xx"><%= request.statusCode %></span>
             <% } else if (request.error) { %>
               <span class="status status-5xx">ERROR</span>
             <% } else { %>
-              <span class="status" style="background: #6b7280;">PENDING</span>
+              <span class="status" style="background: #f5f5f5; color: #666;">PENDING</span>
             <% } %>
-          </div>
+          </span>
         </div>
         <div class="meta-item">
-          <div class="meta-label">Duration</div>
-          <div class="meta-value" style="color: #10b981;"><%= request.duration ? request.duration + 'ms' : '-' %></div>
+          <span class="meta-label">Duration:</span>
+          <span class="meta-value duration"><%= request.duration ? request.duration + 'ms' : '-' %></span>
         </div>
         <div class="meta-item">
-          <div class="meta-label">Timestamp</div>
-          <div class="meta-value" style="font-size: 0.9em;"><%= new Date(request.timestamp).toLocaleString('ja-JP') %></div>
+          <span class="meta-label">Time:</span>
+          <span class="meta-value timestamp"><%= new Date(request.timestamp).toLocaleString('ja-JP') %></span>
         </div>
       </div>
     </header>
 
     <div class="section">
-      <div class="section-title">📍 Request Details</div>
+      <div class="section-title">Request Details</div>
       <table>
         <tr>
-          <th style="width: 150px;">Path</th>
+          <th style="width: 120px;">Path</th>
           <td class="path"><%= request.path %></td>
         </tr>
         <tr>
@@ -281,7 +241,7 @@
 
     <div class="section">
       <div class="section-title">
-        📤 Request Headers
+        Request Headers
         <button class="copy-btn" onclick="copyToClipboard('request-headers')">Copy</button>
       </div>
       <pre id="request-headers" class="code-block"><%= formatJSON(request.headers) %></pre>
@@ -290,7 +250,7 @@
     <% if (request.requestBody) { %>
       <div class="section">
         <div class="section-title">
-          📝 Request Body
+          Request Body
           <button class="copy-btn" onclick="copyToClipboard('request-body')">Copy</button>
         </div>
         <pre id="request-body" class="code-block"><%= formatJSON(request.requestBody) %></pre>
@@ -302,16 +262,16 @@
     %>
     <% if (isBlocked) { %>
       <div class="section">
-        <div class="section-title">🚫 Request Blocked</div>
-        <div class="error-box" style="background: #7f1d1d; border-color: #dc2626;">
-          <strong>⚠️ This request was blocked by NG word filter</strong><br><br>
+        <div class="section-title">Request Blocked</div>
+        <div class="error-box">
+          <strong>This request was blocked by NG word filter</strong><br><br>
           <strong>Reason:</strong> <%= request.error %><br><br>
           <%
             try {
               const responseBody = JSON.parse(request.responseBody || '{}');
               if (responseBody.blocked_word) {
           %>
-          <strong>Blocked Word:</strong> <code style="background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 4px;"><%= responseBody.blocked_word %></code>
+          <strong>Blocked Word:</strong> <code style="background: #ffebee; padding: 2px 8px; border-radius: 4px;"><%= responseBody.blocked_word %></code>
           <%
               }
             } catch (e) {}
@@ -320,7 +280,7 @@
       </div>
     <% } else if (request.error) { %>
       <div class="section">
-        <div class="section-title">❌ Error</div>
+        <div class="section-title">Error</div>
         <div class="error-box">
           <strong>Error Message:</strong><br>
           <%= request.error %>
@@ -331,7 +291,7 @@
     <% if (request.responseHeaders) { %>
       <div class="section">
         <div class="section-title">
-          📥 Response Headers
+          Response Headers
           <button class="copy-btn" onclick="copyToClipboard('response-headers')">Copy</button>
         </div>
         <pre id="response-headers" class="code-block"><%= formatJSON(request.responseHeaders) %></pre>
@@ -341,7 +301,7 @@
     <% if (request.responseBody) { %>
       <div class="section">
         <div class="section-title">
-          📦 Response Body
+          Response Body
           <button class="copy-btn" onclick="copyToClipboard('response-body')">Copy</button>
         </div>
         <pre id="response-body" class="code-block"><%= formatJSON(request.responseBody) %></pre>
