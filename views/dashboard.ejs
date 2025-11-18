@@ -338,16 +338,46 @@
                         if (userMessages.length > 0) {
                           const lastUserMessage = userMessages[userMessages.length - 1];
                           if (lastUserMessage && lastUserMessage.content) {
-                            preview = lastUserMessage.content.substring(0, 150);
-                            if (lastUserMessage.content.length > 150) preview += '...';
-                            isUserMessage = true;
+                            let contentText = '';
+                            // Handle string content
+                            if (typeof lastUserMessage.content === 'string') {
+                              contentText = lastUserMessage.content;
+                            }
+                            // Handle array content (multimodal)
+                            else if (Array.isArray(lastUserMessage.content)) {
+                              contentText = lastUserMessage.content
+                                .map(item => {
+                                  if (item.type === 'text' && item.text) {
+                                    return item.text;
+                                  }
+                                  return '';
+                                })
+                                .filter(t => t)
+                                .join(' ');
+                            }
+                            if (contentText) {
+                              preview = contentText.substring(0, 150);
+                              if (contentText.length > 150) preview += '...';
+                              isUserMessage = true;
+                            }
                           }
                         } else {
                           // Fallback to last message if no user message found
                           const lastMessage = body.messages[body.messages.length - 1];
                           if (lastMessage && lastMessage.content) {
-                            preview = lastMessage.content.substring(0, 100);
-                            if (lastMessage.content.length > 100) preview += '...';
+                            let contentText = '';
+                            if (typeof lastMessage.content === 'string') {
+                              contentText = lastMessage.content;
+                            } else if (Array.isArray(lastMessage.content)) {
+                              contentText = lastMessage.content
+                                .map(item => (item.type === 'text' && item.text) ? item.text : '')
+                                .filter(t => t)
+                                .join(' ');
+                            }
+                            if (contentText) {
+                              preview = contentText.substring(0, 100);
+                              if (contentText.length > 100) preview += '...';
+                            }
                           }
                         }
                       } else if (body.prompt) {
