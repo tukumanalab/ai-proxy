@@ -308,7 +308,7 @@
             <% requests.forEach(req => {
               const isBlocked = req.error && req.error.includes('NG word');
             %>
-              <tr onclick="window.location.href='/request/<%= req.id %>'" class="<%= isBlocked ? 'blocked-row' : '' %>">
+              <tr onclick="window.location.href='request/<%= req.id %>'" class="<%= isBlocked ? 'blocked-row' : '' %>">
                 <td>#<%= req.id %></td>
                 <td class="timestamp"><%= new Date(req.timestamp).toLocaleString('ja-JP') %></td>
                 <td><span class="method method-<%= req.method %>"><%= req.method %></span></td>
