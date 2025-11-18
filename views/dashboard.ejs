@@ -279,10 +279,6 @@
           <span class="stat-label">LLM Checks:</span>
           <span class="stat-value"><%= llmRequestCount %></span>
         </div>
-        <div class="stat">
-          <span class="stat-label">Page:</span>
-          <span class="stat-value"><%= currentPage %> / <%= totalPages %></span>
-        </div>
       </div>
     </header>
 
@@ -292,6 +288,20 @@
       </div>
       <button class="refresh-btn" onclick="location.reload()">Refresh</button>
     </div>
+
+    <% if (totalPages > 1) { %>
+      <div class="pagination" style="margin-bottom: 20px;">
+        <a href="?page=<%= currentPage - 1 %>" class="<%= currentPage <= 1 ? 'disabled' : '' %>">← Previous</a>
+
+        <% for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) { %>
+          <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+        <% } %>
+
+        <a href="?page=<%= currentPage + 1 %>" class="<%= currentPage >= totalPages ? 'disabled' : '' %>">Next →</a>
+
+        <span style="margin-left: 15px; color: #888; font-size: 0.9em;"><%= currentPage %> / <%= totalPages %></span>
+      </div>
+    <% } %>
 
     <div class="table-container">
       <% if (requests.length > 0) { %>
@@ -393,6 +403,8 @@
         <% } %>
 
         <a href="?page=<%= currentPage + 1 %>" class="<%= currentPage >= totalPages ? 'disabled' : '' %>">Next →</a>
+
+        <span style="margin-left: 15px; color: #888; font-size: 0.9em;"><%= currentPage %> / <%= totalPages %></span>
       </div>
     <% } %>
   </div>
