@@ -224,6 +224,42 @@
     <% } %>
 
     <div class="section">
+      <div class="section-title">LLM Check Status</div>
+      <table style="width: auto; margin-bottom: 0;">
+        <tr>
+          <td style="padding: 8px 15px 8px 0; border: none; color: #666;">LLM_CHECK_ENABLED:</td>
+          <td style="padding: 8px 0; border: none;">
+            <% if (llmStatus.enabled) { %>
+              <span style="color: #2e7d32; font-weight: 500;">true</span>
+            <% } else { %>
+              <span style="color: #c62828; font-weight: 500;">false</span>
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 15px 8px 0; border: none; color: #666;">GEMINI_API_KEY:</td>
+          <td style="padding: 8px 0; border: none;">
+            <% if (llmStatus.hasApiKey) { %>
+              <span style="color: #2e7d32; font-weight: 500;">Set</span>
+            <% } else { %>
+              <span style="color: #c62828; font-weight: 500;">Not set</span>
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 15px 8px 0; border: none; color: #666;">Status:</td>
+          <td style="padding: 8px 0; border: none;">
+            <% if (llmStatus.active) { %>
+              <span style="background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 3px; font-weight: 500; font-size: 0.85em;">Active</span>
+            <% } else { %>
+              <span style="background: #f5f5f5; color: #666; padding: 3px 8px; border-radius: 3px; font-weight: 500; font-size: 0.85em;">Inactive</span>
+            <% } %>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
       <div class="section-title">NG Words</div>
 
       <form class="add-form" action="settings/ng-words" method="POST">

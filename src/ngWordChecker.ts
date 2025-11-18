@@ -10,10 +10,12 @@ interface LLMCheckResult {
 export class NGWordChecker {
   private ngWords: string[] = [];
   private geminiApiKey: string | null = null;
+  private llmCheckEnabled: boolean = false;
 
   constructor() {
     this.loadNGWords();
     this.geminiApiKey = process.env.GEMINI_API_KEY || null;
+    this.llmCheckEnabled = process.env.LLM_CHECK_ENABLED?.toLowerCase() === 'true';
   }
 
   private loadNGWords() {
@@ -211,7 +213,7 @@ NGワードリスト: ${ngWordsChecked}
           let llmReason = '';
 
           // Second check: LLM-based detection (if keyword match didn't find anything)
-          if (!foundNGWord && this.geminiApiKey) {
+          if (!foundNGWord && this.geminiApiKey && this.llmCheckEnabled) {
             const llmResult = await this.checkWithLLM(requestContent);
             if (llmResult.blocked) {
               foundNGWord = llmResult.matched_word;
@@ -359,7 +361,15 @@ NGワードリスト: ${ngWordsChecked}
   }
 
   public hasLLMSupport(): boolean {
-    return !!this.geminiApiKey;
+    return !!this.geminiApiKey && this.llmCheckEnabled;
+  }
+
+  public getLLMStatus(): { enabled: boolean; hasApiKey: boolean; active: boolean } {
+    return {
+      enabled: this.llmCheckEnabled,
+      hasApiKey: !!this.geminiApiKey,
+      active: this.llmCheckEnabled && !!this.geminiApiKey
+    };
   }
 }
 

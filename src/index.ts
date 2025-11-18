@@ -205,11 +205,13 @@ app.get('/settings', (req: Request, res: Response) => {
   const ngWords = db.getAllNGWords();
   const message = req.query.message as string || '';
   const messageType = req.query.type as string || 'success';
+  const llmStatus = ngWordChecker.getLLMStatus();
 
   res.render('settings', {
     ngWords,
     message,
-    messageType
+    messageType,
+    llmStatus
   });
 });
 
