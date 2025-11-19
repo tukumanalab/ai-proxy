@@ -475,7 +475,7 @@
                     <%= preview || '-' %>
                   </span>
                   <% if (fullContent && fullContent.length > 150) { %>
-                    <span class="show-more" onclick="event.stopPropagation(); showFullContent(`<%= fullContent.replace(/`/g, '\\`').replace(/\\/g, '\\\\').replace(/\n/g, '\\n') %>`)">[more]</span>
+                    <span class="show-more" data-content="<%- JSON.stringify(fullContent).slice(1, -1) %>" onclick="event.stopPropagation(); showFullContent(this)">[more]</span>
                   <% } %>
                 </td>
                 <td>
@@ -545,8 +545,9 @@
       }
     }
 
-    function showFullContent(content) {
-      document.getElementById('modalBody').textContent = content;
+    function showFullContent(element) {
+      const content = element.getAttribute('data-content');
+      document.getElementById('modalBody').textContent = JSON.parse('"' + content + '"');
       document.getElementById('contentModal').style.display = 'block';
     }
 
