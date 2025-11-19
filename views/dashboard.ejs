@@ -472,7 +472,7 @@
                     }
                   %>
                   <% if (fullContent) { %>
-                    <span class="show-more" data-content="<%- JSON.stringify(fullContent).slice(1, -1) %>" onclick="event.stopPropagation(); showFullContent(this)">Show all</span>
+                    <span class="show-more" data-content="<%- JSON.stringify(fullContent).slice(1, -1) %>" onclick="event.stopPropagation(); showFullContent(this)">[Show All]</span>
                   <% } %>
                   <span class="<%= isUserMessage ? 'user-message' : 'system-message' %>">
                     <%= preview || '-' %>
