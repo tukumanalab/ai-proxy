@@ -334,19 +334,19 @@
                     try {
                       const body = JSON.parse(req.requestBody || '{}');
                       if (body.messages && Array.isArray(body.messages)) {
-                        // Find the last user message
+                        // Find the first user message
                         const userMessages = body.messages.filter(m => m.role === 'user');
                         if (userMessages.length > 0) {
-                          const lastUserMessage = userMessages[userMessages.length - 1];
-                          if (lastUserMessage && lastUserMessage.content) {
+                          const firstUserMessage = userMessages[0];
+                          if (firstUserMessage && firstUserMessage.content) {
                             let contentText = '';
                             // Handle string content
-                            if (typeof lastUserMessage.content === 'string') {
-                              contentText = lastUserMessage.content;
+                            if (typeof firstUserMessage.content === 'string') {
+                              contentText = firstUserMessage.content;
                             }
                             // Handle array content (multimodal)
-                            else if (Array.isArray(lastUserMessage.content)) {
-                              contentText = lastUserMessage.content
+                            else if (Array.isArray(firstUserMessage.content)) {
+                              contentText = firstUserMessage.content
                                 .map(item => {
                                   if (item.type === 'text' && item.text) {
                                     return item.text;
