@@ -474,8 +474,8 @@
                   <span class="<%= isUserMessage ? 'user-message' : 'system-message' %>">
                     <%= preview || '-' %>
                   </span>
-                  <% if (fullContent && fullContent.length > 150) { %>
-                    <span class="show-more" data-content="<%- JSON.stringify(fullContent).slice(1, -1) %>" onclick="event.stopPropagation(); showFullContent(this)">[more]</span>
+                  <% if (fullContent) { %>
+                    <span class="show-more" data-content="<%- JSON.stringify(fullContent).slice(1, -1) %>" onclick="event.stopPropagation(); showFullContent(this)">全部を表示</span>
                   <% } %>
                 </td>
                 <td>
