@@ -329,6 +329,7 @@
                 <td class="request-preview">
                   <%
                     let preview = '';
+                    let fullContent = '';
                     let isUserMessage = false;
                     try {
                       const body = JSON.parse(req.requestBody || '{}');
@@ -361,6 +362,7 @@
                               if (taskMatch) {
                                 contentText = taskMatch[1].trim();
                               }
+                              fullContent = contentText;
                               preview = contentText.substring(0, 150);
                               if (contentText.length > 150) preview += '...';
                               isUserMessage = true;
@@ -380,23 +382,27 @@
                                 .join(' ');
                             }
                             if (contentText) {
+                              fullContent = contentText;
                               preview = contentText.substring(0, 100);
                               if (contentText.length > 100) preview += '...';
                             }
                           }
                         }
                       } else if (body.prompt) {
+                        fullContent = body.prompt;
                         preview = body.prompt.substring(0, 150);
                         if (body.prompt.length > 150) preview += '...';
                         isUserMessage = true;
                       } else {
-                        preview = JSON.stringify(body).substring(0, 100) + '...';
+                        fullContent = JSON.stringify(body);
+                        preview = fullContent.substring(0, 100) + '...';
                       }
                     } catch (e) {
+                      fullContent = req.requestBody || '';
                       preview = req.requestBody ? req.requestBody.substring(0, 100) + '...' : '-';
                     }
                   %>
-                  <span class="<%= isUserMessage ? 'user-message' : 'system-message' %>">
+                  <span class="<%= isUserMessage ? 'user-message' : 'system-message' %>" title="<%= fullContent.substring(0, 1000) %>">
                     <%= preview || '-' %>
                   </span>
                 </td>
