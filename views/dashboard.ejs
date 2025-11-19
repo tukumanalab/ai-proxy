@@ -150,6 +150,30 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       font-size: 0.9em;
+      position: relative;
+    }
+
+    .request-preview .tooltip-text {
+      visibility: hidden;
+      position: absolute;
+      z-index: 1000;
+      background: #333;
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      max-width: 500px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      left: 0;
+      top: 100%;
+      margin-top: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      line-height: 1.4;
+    }
+
+    .request-preview:hover .tooltip-text {
+      visibility: visible;
     }
 
     .user-message {
@@ -402,8 +426,11 @@
                       preview = req.requestBody ? req.requestBody.substring(0, 100) + '...' : '-';
                     }
                   %>
-                  <span class="<%= isUserMessage ? 'user-message' : 'system-message' %>" title="<%= fullContent.substring(0, 1000) %>">
+                  <span class="<%= isUserMessage ? 'user-message' : 'system-message' %>">
                     <%= preview || '-' %>
+                    <% if (fullContent && fullContent.length > 150) { %>
+                      <span class="tooltip-text"><%= fullContent.substring(0, 1000) %></span>
+                    <% } %>
                   </span>
                 </td>
                 <td>
